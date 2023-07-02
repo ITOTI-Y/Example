@@ -4,9 +4,9 @@ import pandas as pd
 
 # 数据准备
 NUM = 20
-np.random.seed(1)
-x1 = np.random.randn(NUM,2)+[2,2]
-x2 = np.random.randn(NUM,2)-[2,2]
+# np.random.seed(1)
+x1 = np.random.randn(NUM,2)+[1,1]
+x2 = np.random.randn(NUM,2)-[1,1]
 X = np.concatenate((x1,x2),axis=0)
 y = np.concatenate((np.ones(NUM),-np.ones(NUM)),axis=0)
 plt.scatter(X[:,0],X[:,1],c=y,cmap=plt.cm.Paired)
@@ -14,7 +14,7 @@ ax = plt.gca()
 
 C = 1 # 惩罚系数
 tol = 0.001 # 容忍度
-max_iter = 100 # 最大迭代次数
+max_iter = 1000 # 最大迭代次数
 m,n = X.shape # m个样本，n个特征
 alpha = np.zeros(m) # 初始化拉格朗日乘子
 b = 0 # 初始化截距
@@ -77,6 +77,9 @@ def E_choice(num,alpha,b,type='choice'):
             result = [result.iloc[0].name,result.iloc[0].values[0]]
         elif E1 < 0:
             result = [result.iloc[-1].name,result.iloc[-1].values[0]]
+        else:
+            result = abs(result).sort_values(by=[0,1])
+            result = [result.iloc[-1].name,result.iloc[-1].values[0]]
         return result
     if type == 'list':
         return result
@@ -102,7 +105,34 @@ def cut_off(alpha_old,i,j,Ei_old,Ej_old):
     alpha_j = max(alpha_j,L)
     return alpha_j
 
-while iters < max_iter:
+def inner_any(alpha_old,i,j):
+    index = np.asarray([index for index, value in enumerate(alpha)])
+    choice_index = index[(alpha < 1) & (alpha > 0)]
+    for k in choice_index:
+        if len(index) < 1:
+            break
+        if k == i:
+            continue
+        else:
+            j = k
+            result = cut_off(alpha_old,i,j,Error(i,alpha,b),Error(j,alpha,b))
+            if abs(result - alpha_old[j]) < 0.0001:
+                continue
+            else:
+                return result,j
+    for k in index:
+        if k!= i:
+            j = k
+            result = cut_off(alpha_old,i,j,Error(i,alpha,b),Error(j,alpha,b))
+            if abs(result - alpha_old[j]) < 0.0001:
+                continue
+            else:
+                return result,j
+    return False
+
+iters = 0
+list_ij = []
+while True:
     i,j = choice_i_j(X,alpha,b)
 
     Ei_old = Error(i,alpha,b)
@@ -110,18 +140,12 @@ while iters < max_iter:
     alpha_old = alpha.copy()
     alpha_new = alpha.copy()
 
-    alpha_new[j] = cut_off(alpha_old,i,j,Ei_old,Ej_old)
-    if abs(alpha_new[j]-alpha_old[j]) < 0.0001:
-        pd_alpha = pd.DataFrame(alpha)
-        for num in pd_alpha[pd_alpha > 0].dropna().index:
-            if num == i:
-                continue
-            if num != i:
-                break
-        j = num
-        Ej_old = Error(j,alpha,b)
-        alpha_new[j] = cut_off(alpha_old,i,j,Ei_old,Ej_old)
+    alpha_j_new = cut_off(alpha_old,i,j,Ei_old,Ej_old)
+    if abs(alpha_j_new - alpha_old[j]) < 0.0001:
+        alpha_new[j],j = inner_any(alpha_old,i,j)
+        
     alpha_new[i] = alpha_old[i] + y[i]*y[j]*(alpha_old[j]-alpha_new[j])
+
 
     b1 = b - Ei_old - y[i]*(alpha_new[i]-alpha_old[i])*kernel(X[i],X[i]) - y[j]*(alpha_new[j]-alpha_old[j])*kernel(X[i],X[j])
     b2 = b - Ej_old - y[i]*(alpha_new[i]-alpha_old[i])*kernel(X[i],X[j]) - y[j]*(alpha_new[j]-alpha_old[j])*kernel(X[j],X[j])
@@ -137,5 +161,12 @@ while iters < max_iter:
 
     E = E_choice(i,alpha,b,'list')
     KKT = KKT_error(X,alpha,b,'list')
+    list_ij.append([i,j])
+
+    if KKT.max()[0]< tol:
+        print('KKT条件满足，迭代结束')
+        break
+    if iters > max_iter:
+        print('迭代次数超过最大迭代次数，迭代结束')
+        break
     iters += 1
-    print(i,j)
