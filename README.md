@@ -13,7 +13,6 @@
 
 ## 📋 目录
 - [x] [支持向量机](./SVM)
-      ![SVM](https://github.com/ITOTI-Y/Example/blob/main/SVM/svm.gif)
 - [ ] [贝叶斯分类](./Linear_Regression)
 - [ ] [K-聚类](./Linear_Regression)
 - [ ] [BP神经网络](./Linear_Regression)
