@@ -1,3 +1,4 @@
 *.csv
 *.ipynb_metadata
 *.ipynb_checkpoints
+BP_Neural_Network/data/
