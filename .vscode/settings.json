@@ -1,6 +1,6 @@
 {
     "commentTranslate.source": "intellsmi.deepl-translate-deepl",
     "python.analysis.extraPaths": [
-        "f:\\Directory\\Python\\Git\\Example\\.conda\\lib\\site-packages"
+        ".conda\\lib\\site-packages"
     ]
 }
