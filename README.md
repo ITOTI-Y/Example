@@ -13,9 +13,9 @@
 
 ## 📋 目录
 - [x] [支持向量机](./Support_Vector_Machine)
+- [x] [BP神经网络](./BP_Neural_Network)
 - [ ] [贝叶斯分类](./Bayesian_Classification)
 - [ ] [K-聚类](./K-means_Clustering)
-- [ ] [BP神经网络](./BP_Neural_Network)
 - [ ] [卷积神经网络](./Convolutional_Neural_Network)
 - [ ] [生成对抗网络](./Generative_Adversarial_Network)
 ## 🚀 如何开始
