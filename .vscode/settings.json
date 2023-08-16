@@ -2,5 +2,6 @@
     "commentTranslate.source": "intellsmi.deepl-translate-deepl",
     "python.analysis.extraPaths": [
         ".conda\\lib\\site-packages"
-    ]
+    ],
+    "python.analysis.typeCheckingMode": "basic"
 }
