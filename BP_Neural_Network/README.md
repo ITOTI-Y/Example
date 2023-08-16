@@ -31,7 +31,7 @@
 以下是如何使用该类的示例：
 
 ```python
-from BP_neural_utils import bp_neural
+from utils.BP_neural_utils import bp_neural
 
 # 创建一个BP神经网络实例
 neural_network = bp_neural(train_imgs, train_labels, n_hidden=100)
