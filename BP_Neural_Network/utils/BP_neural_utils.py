@@ -3,7 +3,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 
-class bp_neural():
+
+class bp_neural:
     """
     该类实现了一个简单的BP神经网络，包括前向传播、反向传播、参数更新、预测、准确率计算、混淆矩阵绘制等功能。
     """
@@ -14,9 +15,11 @@ class bp_neural():
     frontprop = None
     initparams = None
     backprop = None
-    a1,a2,z1,z2 = np.empty((4,0))
+    a1, a2, z1, z2 = np.empty((4, 0))
+    w1, b1, w2, b2 = np.empty((4, 0))
+    dw1, db1, dw2, db2 = np.empty((4, 0))
 
-    def __init__(self,train_imgs,train_labels,n_hidden=100,method = 'softmax'):
+    def __init__(self, train_imgs, train_labels, n_hidden=100, method='softmax'):
         """
         初始化神经网络
 
@@ -32,7 +35,7 @@ class bp_neural():
         self.o_train_labels = train_labels.copy()
         self.act_function = method
 
-    def normalize_images(self,inplace=False):
+    def normalize_images(self, inplace=False):
         """
         对图像数据进行归一化处理
 
@@ -47,15 +50,15 @@ class bp_neural():
             return None
         tr_imgs = self.train_imgs.astype('float32')
         tr_imgs = tr_imgs / 255.0
-        tr_imgs = tr_imgs.reshape(tr_imgs.shape[0],-1)
+        tr_imgs = tr_imgs.reshape(tr_imgs.shape[0], -1)
         self.n_input = tr_imgs.shape[1]
         if inplace:
             self.normalize = True
             self.train_imgs = tr_imgs.T
             return None
         return tr_imgs.T
-    
-    def one_hot(self,inplace=False):
+
+    def one_hot(self, inplace=False):
         """
         对标签数据进行 one-hot 编码
 
@@ -69,15 +72,15 @@ class bp_neural():
             print('Already one-hot')
             return None
         tr_labels = self.train_labels
-        result = np.zeros((tr_labels.size,tr_labels.max()+1))
-        result[np.arange(tr_labels.size),tr_labels] = 1
+        result = np.zeros((tr_labels.size, tr_labels.max() + 1))
+        result[np.arange(tr_labels.size), tr_labels] = 1
         self.n_output = result.shape[1]
         if inplace:
             self.onehot = True
             self.train_labels = result.T
             return None
         return result.T
-    
+
     def init_params(self):
         """
         初始化神经网络参数
@@ -85,13 +88,13 @@ class bp_neural():
         if self.initparams:
             print('Already init params')
             return None
-        self.w1 = np.random.randn(self.n_input,self.n_hidden)
-        self.b1 = np.zeros((self.n_hidden,1))
-        self.w2 = np.random.randn(self.n_hidden,self.n_output)
-        self.b2 = np.zeros((self.n_output,1))
+        self.w1 = np.random.randn(self.n_input, self.n_hidden)
+        self.b1 = np.zeros((self.n_hidden, 1))
+        self.w2 = np.random.randn(self.n_hidden, self.n_output)
+        self.b2 = np.zeros((self.n_output, 1))
         self.initparams = True
 
-    def sigmoid(self,z):
+    def sigmoid(self, z):
         """
         sigmoid 激活函数
 
@@ -101,9 +104,9 @@ class bp_neural():
         Returns:
         numpy.ndarray, 经过 sigmoid 函数处理后的数据
         """
-        return 1/(1+np.exp(-z))
-    
-    def sigmoid_d(self,z):
+        return 1 / (1 + np.exp(-z))
+
+    def sigmoid_d(self, z):
         """
         sigmoid 函数的导数
 
@@ -113,9 +116,9 @@ class bp_neural():
         Returns:
         numpy.ndarray, sigmoid 函数的导数
         """
-        return self.sigmoid(z)*(1-self.sigmoid(z))
-    
-    def front_prop(self,output = False):
+        return self.sigmoid(z) * (1 - self.sigmoid(z))
+
+    def front_prop(self, output=False):
         """
         前向传播
 
@@ -128,9 +131,9 @@ class bp_neural():
         if self.frontprop:
             print('Already frontprop')
             return None
-        self.z1 = np.dot(self.w1.T,self.train_imgs) + self.b1
+        self.z1 = np.dot(self.w1.T, self.train_imgs) + self.b1
         self.a1 = self.sigmoid(self.z1)
-        self.z2 = np.dot(self.w2.T,self.a1) + self.b2
+        self.z2 = np.dot(self.w2.T, self.a1) + self.b2
 
         if self.act_function == 'sigmoid':
             self.a2 = self.sigmoid(self.z2)
@@ -140,9 +143,9 @@ class bp_neural():
         self.frontprop = True
         self.backprop = None
         if output:
-            return self.z1,self.a1,self.z2,self.a2
-        
-    def back_prop(self,output=False):
+            return self.z1, self.a1, self.z2, self.a2
+
+    def back_prop(self, output=False):
         """
         反向传播
 
@@ -157,22 +160,22 @@ class bp_neural():
             return None
         batch = self.train_imgs.shape[1]
         if self.act_function == 'sigmoid':
-            self.dz2 = -self.train_labels/self.a2 * self.sigmoid_d(self.z2)
+            self.dz2 = -self.train_labels / self.a2 * self.sigmoid_d(self.z2)
         if self.act_function == 'softmax':
             self.dz2 = self.a2 - self.train_labels
 
-        self.dw2 = 1/batch * np.dot(self.dz2,self.a1.T).T
-        self.db2 = 1/batch * np.sum(self.dz2,axis=1,keepdims=True)
-        self.da1 = np.dot(self.dz2.T,self.w2.T).T
+        self.dw2 = 1 / batch * np.dot(self.dz2, self.a1.T).T
+        self.db2 = 1 / batch * np.sum(self.dz2, axis=1, keepdims=True)
+        self.da1 = np.dot(self.dz2.T, self.w2.T).T
         self.dz1 = self.da1 * self.sigmoid_d(self.z1)
-        self.dw1 = 1/batch * np.dot(self.dz1,self.train_imgs.T).T
-        self.db1 = 1/batch * np.sum(self.dz1,axis=1,keepdims=True)
-        
+        self.dw1 = 1 / batch * np.dot(self.dz1, self.train_imgs.T).T
+        self.db1 = 1 / batch * np.sum(self.dz1, axis=1, keepdims=True)
+
         self.backprop = True
         if output:
-            return self.dw1,self.db1,self.dw2,self.db2
-        
-    def update_params(self,lr:float=1):
+            return self.dw1, self.db1, self.dw2, self.db2
+
+    def update_params(self, lr: float = 1):
         """
         更新神经网络参数
 
@@ -185,7 +188,7 @@ class bp_neural():
         self.b2 -= lr * self.db2
         self.frontprop = None
 
-    def predict(self,imgs):
+    def predict(self, imgs):
         """
         预测
 
@@ -195,17 +198,17 @@ class bp_neural():
         Returns:
         numpy.ndarray, 预测结果，形状为 (n_samples,)
         """
-        p_z1 = np.dot(self.w1.T,imgs) + self.b1
+        p_z1 = np.dot(self.w1.T, imgs) + self.b1
         p_a1 = self.sigmoid(p_z1)
-        p_z2 = np.dot(self.w2.T,p_a1) + self.b2
+        p_z2 = np.dot(self.w2.T, p_a1) + self.b2
         if self.act_function == 'sigmoid':
             p_a2 = self.sigmoid(p_z2)
         else:
             p_a2 = self.softmax(p_z2)
-        result = np.argmax(p_a2,axis=0)
+        result = np.argmax(p_a2, axis=0)
         return result
-    
-    def softmax(self,z):
+
+    def softmax(self, z):
         """
         softmax 激活函数
 
@@ -216,10 +219,10 @@ class bp_neural():
         numpy.ndarray, 经过 softmax 函数处理后的数据
         """
         exp_z = np.exp(z)
-        sum_exp_z = np.sum(exp_z,axis=0,keepdims=True)
+        sum_exp_z = np.sum(exp_z, axis=0, keepdims=True)
         result = exp_z / sum_exp_z
         return result
-    
+
     def accuracy(self):
         """
         计算准确率
@@ -229,19 +232,19 @@ class bp_neural():
         """
         result = np.mean(self.predict(self.train_imgs) == self.o_train_labels)
         return result
-    
+
     def plot(self):
         """
         绘制混淆矩阵
         """
         train_preds = self.predict(self.train_imgs)
-        cm = confusion_matrix(train_preds,self.o_train_labels,)
-        sns.heatmap(cm,annot=True,fmt='d',cmap='Blues',cbar=False)
+        cm = confusion_matrix(train_preds, self.o_train_labels, )
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False)
         plt.ylabel('True Labels')
         plt.xlabel('Predicted Labels')
         plt.title('Confusion Matrix')
         plt.show()
-    
+
     def node_info(self):
         """
         输出神经网络节点信息
