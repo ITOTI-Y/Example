@@ -57,6 +57,7 @@ class bp_neural:
             self.train_imgs = tr_imgs.T
             return None
         return tr_imgs.T
+        
 
     def one_hot(self, inplace=False):
         """
