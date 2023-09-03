@@ -1,4 +1,3 @@
-from cv2 import normalize
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -9,6 +8,7 @@ class bp_neural:
     labels = np.empty((0,0))
     normalize = None
     onehot = None
+    acc = []
 
     def __init__(self,train_imgs,train_labels,n_hidden=100,method='softmax'):
         self.train_imgs = train_imgs
@@ -52,10 +52,12 @@ class bp_neural:
         self.a1 = self.sigmoid(self.z1)
         self.z2 = np.dot(self.w2.T,self.a1) + self.b2
         self.a2 = self.sigmoid(self.z2)
+        self.acc.append(self.accuracy(self.a2))
 
     def back_prop(self):
         self.da2 = self.labels / self.a2
-        self.dz2 = self.da2 * self.sigmoid_d(self.z2)
+        # self.dz2 = self.da2 * self.sigmoid_d(self.z2)
+        self.dz2 = self.labels - self.a2
         self.dw2 = -1/self.imgs.shape[1] * np.dot(self.a1,self.dz2.T)
         self.db2 = -1/self.imgs.shape[1] * np.sum(self.dz2,axis=1,keepdims=True)
         self.da1 = np.dot(self.dz2.T,self.w2.T).T
@@ -63,11 +65,35 @@ class bp_neural:
         self.dw1 = -1/self.imgs.shape[1] * np.dot(self.dz1,self.imgs.T).T
         self.db1 = -1/self.imgs.shape[1] * np.sum(self.dz1,axis=1,keepdims=True)
 
+    def update_params(self,lr:float=1):
+        self.w1 = self.w1 - lr * self.dw1
+        self.b1 = self.b1 - lr * self.db1
+        self.w2 = self.w2 - lr * self.dw2
+        self.b2 = self.b2 - lr * self.db2
+
+    def train(self,lr:float=1):
+        self.front_prop()
+        self.back_prop()
+        self.update_params(lr=lr)
+
+    def predict(self,test_imgs):
+        z1 = np.dot(self.w1.T,test_imgs) + self.b1
+        a1 = self.sigmoid(z1)
+        z2 = np.dot(self.w2.T,a1) + self.b2
+        a2 = self.sigmoid(z2)
+        result = np.argmax(a2,axis=0)
+        return result
+
+    def accuracy(self,a2):
+        result = np.argmax(a2,axis=0)
+        output = np.mean(self.train_labels == result)
+        return output
+
 
     def sigmoid(self,z):
         result = 1/(1+np.exp(-z))
         return result
-    
+
     def sigmoid_d(self,z):
         result = self.sigmoid(z) * (1-self.sigmoid(z))
         return result
