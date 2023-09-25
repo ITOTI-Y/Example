@@ -6,7 +6,7 @@ class Cluster:
     def __init__(self,data) -> None:
         self.data = data
         self.data_tensor = torch.tensor(self.data.values)
-        self.lenght = self.data_tensor.shape[0]
+        self.length = self.data_tensor.shape[0]
 
     def K_means(self,k:int,max_iters:int,tol:float=1e-4,process:bool=False):
         self.process_centers = torch.empty(0)
@@ -22,11 +22,11 @@ class Cluster:
         random_index = random_index[:self.k]
         self.centers = self.data_tensor[random_index]
 
-    def cal_distance(self,x1,x2):
+    def cal_distance(self,x1:torch.Tensor,x2:torch.Tensor) -> torch.Tensor:
         result = torch.sqrt(torch.sum((x1-x2)**2,dim=1))
         return result
     
-    def distances(self):
+    def distances(self) -> torch.Tensor:
         centers = self.centers
         temp = []
         for i in centers:
@@ -34,13 +34,15 @@ class Cluster:
         result = torch.stack(temp,dim=0)
         return result
     
-    def clu(self,):
+    def clu(self):
         result = torch.argmin(self.distances(),dim=0)
         return result
 
     def new_centers(self):
         clu = self.clu()
         temp = []
+        # temp = [self.data_tensor[clu == i] for i in range(self.k)]
+        # temp = [torch.mean(temp[i],dim=0) for i in range(self.k)]
         for i in range(self.k):
             temp.append(self.data_tensor[clu == i])
         for j in range(self.k):
@@ -59,7 +61,7 @@ class Cluster:
             self.centers = new_centers
 
     def process(self,index):
-        temp_node = torch.cat([torch.ones(self.lenght,1)*index,self.clu().reshape(-1,1),self.data_tensor],dim=1)
+        temp_node = torch.cat([torch.ones(self.length,1)*index,self.clu().reshape(-1,1),self.data_tensor],dim=1)
         self.process_node = torch.cat([self.process_node,temp_node],dim=0)
         temp_centers = torch.cat([torch.ones(self.k,1)*index,self.centers],dim=1)
         self.process_centers = torch.cat([self.process_centers,temp_centers],dim=0)
@@ -80,10 +82,10 @@ class Cluster:
 
     def fit(self):
         data = self.data_tensor
-        self.cluster_labels = torch.full((self.lenght,),-1)
+        self.cluster_labels = torch.full((self.length,),-1)
         cluster_num = 0
 
-        for i in range(self.lenght):
+        for i in range(self.length):
             if self.cluster_labels[i] != -1:
                 continue
             distances = self.cal_distance(data[i],data)
