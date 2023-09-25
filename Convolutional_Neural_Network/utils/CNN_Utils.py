@@ -1,22 +1,27 @@
+import os
 import torch
-import numpy as np
-import torchvision
-import matplotlib.pyplot as plt
-from itertools import islice
+import torchvision.transforms as transforms
+from torch.utils.data import Dataset
+from PIL import Image
 
-class cnn():
+class DogDataset(Dataset):
 
-    def __init__(self,image_path='./data'):
-        self.image_path = image_path
+    def __init__(self,data_dir,label_list):
+        super(DogDataset,self).__init__()
+        self.data_dir = data_dir
+        self.label_list = label_list
 
-    def dowmload_data(self):
-        self.train_data = torchvision.datasets.MNIST(self.image_path,train=True,download=True)
-        self.test_data = torchvision.datasets.MNIST(self.image_path,train=False,download=True)
+        self.image_paths = []
+        for label in self.label_list:
+            label_dir = os.path.join(self.data_dir, label)
+            self.image_paths.extend([os.path.join(label_dir,image) for image in os.listdir(label_dir)])
 
-    def show_data(self):
-        fig = plt.figure(figsize=(15,6))
-        for i,(image,label) in islice(enumerate(self.train_data),10): #type: ignore
-            ax = fig.add_subplot(2,5,i+1)
-            ax.set_xticks([]);ax.set_yticks([])
-            ax.set_title(f'Label:{label}')
-            ax.imshow(image)
+    def __len__(self):
+        return len(self.image_paths)
+    
+    def __getitem__(self,index):
+        image_path = self.image_paths[index]
+        image = Image.open(image_path)
+        image = transforms.ToTensor()(image)
+        label = self.label_list.index(os.path.split(os.path.dirname(image_path))[1])
+        return image,label

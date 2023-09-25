@@ -12,17 +12,21 @@
 - **实际应用**：使用数据集来展示如何在实际问题中应用这些算法，包括数据的预处理、模型的训练和验证、结果的评估和解释等。
 
 ## 📋 目录
-- [x] [支持向量机](./Support_Vector_Machine)
+### 机器学习
+- [x] [K-聚类](./Clustering_Algorithm)
 - [x] [BP神经网络](./BP_Neural_Network)
+- [x] [支持向量机](./Support_Vector_Machine)
 - [ ] [贝叶斯分类](./Bayesian_Classification)
-- [ ] [K-聚类](./K-means_Clustering)
+
+### 深度学习
 - [ ] [卷积神经网络](./Convolutional_Neural_Network)
 - [ ] [生成对抗网络](./Generative_Adversarial_Network)
+- [ ] [循环神经网络](./Recurrent_Neural_Network)
 ## 🚀 如何开始
 
 1. 克隆这个仓库
 ```bash
-git clone https://github.com/yourusername/ML_and_DL_examples.git
+git clone git@github.com:ITOTI-Y/Example.git
 ```
 2. 安装所需的库
 ```bash
