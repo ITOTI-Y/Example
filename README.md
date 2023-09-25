@@ -19,7 +19,7 @@
 - [ ] [贝叶斯分类](./Bayesian_Classification)
 
 ### 深度学习
-- [ ] [卷积神经网络](./Convolutional_Neural_Network)
+- [x] [卷积神经网络](./Convolutional_Neural_Network)
 - [ ] [生成对抗网络](./Generative_Adversarial_Network)
 - [ ] [循环神经网络](./Recurrent_Neural_Network)
 ## 🚀 如何开始
@@ -47,6 +47,4 @@ pip install -r requirements.txt
 
 我们欢迎任何形式的贡献，包括但不限于新的算法实现、代码优化、文档改进、问题报告和建议。
 
-## 📄 许可证
 
-这个项目使用MIT许可证，详情请见[LICENSE](./LICENSE)文件。
