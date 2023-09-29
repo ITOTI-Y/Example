@@ -26,7 +26,7 @@
 
 1. 克隆这个仓库
 ```bash
-git clone git@github.com:ITOTI-Y/Example.git
+git clone https://github.com/ITOTI-Y/Example.git
 ```
 2. 安装所需的库
 ```bash
