@@ -1,0 +1,27 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+
+# enter path to your script files
+code: d:\Folder\Vscode\Git\Example
+# use scripts in Python, R, Java, Julia, C#. Here we have shown python
+command: python Convolutional_Neural_Network/Plain CNN/CNN_train.py --data ${{inputs.trainingData1}}
+# invoke completions (Ctrl+Space, Cmd+Space) to see the list of environments available
+environment:
+  image: docker.io/python
+
+# You can either setup, create, and manage compute infrastructure for running a job, or use serverless compute and offload compute lifecycle management to Azure Machine Learning.
+# To use serverless compute (preview), delete the compute line below. We will default a single instance of a CPU virtual machine size based on quota, performance, cost, and disk size.
+# Alternatively, to specify the number of instances and instance type (VM size) for the job, add a resources section. For more details refer to this documentation: https://aka.ms/azuremlserverlesstraining.
+
+# invoke completions (Ctrl+Space, Cmd+Space) to see the list of computes available. 
+compute: azureml:Benyuan114-cluster
+
+# This defines the input data to mount. The names of the items in inputs can be referenced in the command
+inputs:
+  trainingData1:
+    type: uri_file
+    mode: ro_mount
+    path: <path-to-your-local-training-data>
+  trainingData2:
+    type: uri_folder
+    mode: ro_mount
+    path: <url-to-blob-container-with-data>
